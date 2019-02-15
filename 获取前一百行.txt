@@ -1,0 +1,49 @@
+ /// <summary>
+        /// 返回手术名称的集合，并转换为拼音首字母
+        /// </summary>
+        /// <returns></returns>
+        public List<KeyValue> GetOperationNameDict(dynamic data)
+        {
+            string searchKeyWord = data.searchWord;
+            List<KeyValue> result = new List<KeyValue>();
+            string sqlstr = " SELECT  OPERATION_NAME AS KEY ,  OPERATION_CODE AS VALUE, INPUT_CODE AS INPUTCODE FROM MED_OPERATION_DICT";
+            result = dapper.Query<KeyValue>(sqlstr);
+
+            List<KeyValue> tempResult = new List<KeyValue>();
+            foreach (KeyValue key in result)
+            {
+                if (!string.IsNullOrEmpty(key.InputCode))
+                {
+                    if (!string.IsNullOrEmpty(key.Key))
+                    {
+                        key.InputCode = StringManage.GetPYString(key.Key);
+                    }
+                }
+                if (!string.IsNullOrEmpty(searchKeyWord))
+                {
+                    if (key.InputCode.Contains(searchKeyWord.Trim()))
+                    {
+                        tempResult.Add(key);
+
+                    }
+                }
+                else
+                {
+
+                }
+            }
+            if (!string.IsNullOrEmpty(searchKeyWord))
+            {
+                result = tempResult.Count > 100 ? tempResult.Take(100).ToList() : tempResult;
+            }
+            else
+            {
+
+                if (result.Count >= 100)
+                {
+                    result = result.Take(100).ToList();
+                }
+            }
+            return result;
+        }
+
